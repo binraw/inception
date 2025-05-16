@@ -1,12 +1,28 @@
 services:
-  nginx:
-    build:
-      context: ./requirements/nginx
+  # nginx:
+  #   build:
+  #     context: ./requirements/nginx
   
   wordpress:
     build:
       context: ./requirements/wordpress
+    depends_on:
+      - mariadb
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./wp-content:/var/www/html/wp-content
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
 
   mariadb:
     build:
       context: ./requirements/mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}

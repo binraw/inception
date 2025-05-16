@@ -1,7 +1,6 @@
 FROM alpine:3.21.3
 
-RUN apk update && apk add --no-cache tini nginx 
-
+RUN apk update && apk add --no-cache tini nginx=1.22.1-r0 
 
 RUN rm /etc/nginx/nginx.conf
 
