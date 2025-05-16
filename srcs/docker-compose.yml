@@ -1,7 +1,9 @@
 services:
-  # nginx:
-  #   build:
-  #     context: ./requirements/nginx
+  nginx:
+    build:
+      context: ./requirements/nginx
+    ports:
+      - "443:443"
   
   wordpress:
     build:
@@ -22,6 +24,8 @@ services:
   mariadb:
     build:
       context: ./requirements/mariadb
+    ports:
+      - "3306:3306"
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}

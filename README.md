@@ -1,7 +1,5 @@
 # inception
 
 
-la pour php-fpm je sais pas trop si je dois ajouter des 'caracteristiques' 
-a ma conf nginx pour pouvoir faire tourner ce service. a verifier !
-
-dans la consigne : installe et conf uniquement sans nginx donc je pense avoir ma reponse
+ne pas demarrer avec une commande faisant tourner une boucle infinie.
+Mais moi jai set a restart: always . Vu comme une boucle infinie ?
