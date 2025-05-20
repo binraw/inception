@@ -8,6 +8,11 @@ ENTRYPOINT ["/sbin/tini", "--"]
 
 COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
+WORKDIR ./tools
+
+RUN /usr/bin/script.sh
+
+
 EXPOSE 443
 
 CMD ["nginx", "-g", "daemon off;"]
