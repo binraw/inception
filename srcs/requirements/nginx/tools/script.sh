@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 if [[ ! -f "key_certificat.key" || ! -f "certificat.crt" ]]; then
     echo "Create certificat"
 
@@ -9,5 +10,5 @@ if [[ ! -f "key_certificat.key" || ! -f "certificat.crt" ]]; then
 
     echo "Certificat OK"
 else
-    echo "Error Created Certificat"
+    echo "Error: Certificat already created"
 fi
