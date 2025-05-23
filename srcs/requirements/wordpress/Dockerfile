@@ -12,10 +12,15 @@ RUN apk  add php-pdo
 RUN apk  add php-pdo_mysql
 RUN apk  add curl
 RUN apk  add bash
+RUN apk add bash
 
 # voir a quoi srt ce dossier qui semble etre pour php-fpm
 RUN mkdir -p /run/php
 
+
+COPY ./tools/script.sh /tools/script.sh
+
+RUN chmod +x /tools/script.sh && /tools/script.sh
 
 EXPOSE 9000
 

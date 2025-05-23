@@ -1,6 +1,6 @@
 FROM alpine:3.21.3
 
-RUN apk update && apk add --no-cache tini nginx bash openssl
+RUN apk update && apk add --no-cache tini nginx bash openssl curl
 
 RUN rm /etc/nginx/nginx.conf
 
