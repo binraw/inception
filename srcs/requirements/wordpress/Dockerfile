@@ -3,24 +3,42 @@ FROM alpine:3.21.3
 RUN apk update
 # RUN apk  add  php8
 
-RUN apk  add php-fpm
-RUN apk  add php-mysqli 
-RUN apk  add php-gd 
-RUN apk  add php-zip 
-RUN apk  add php-json
-RUN apk  add php-pdo
-RUN apk  add php-pdo_mysql
-RUN apk  add curl
-RUN apk  add bash
-RUN apk add bash
+RUN apk  add --no-cache \
+    php-fpm \
+    php-mysqli \
+    php-gd \
+    php-zip \
+    php-json \
+    php-pdo \
+    php-pdo_mysql \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    freetype-dev \
+    libzip-dev \
+    imagemagick \
+    ghostscript \
+    bash \
+    curl \
+    shadow
 
-# voir a quoi srt ce dossier qui semble etre pour php-fpm
-RUN mkdir -p /run/php
 
+RUN getent group www-data || addgroup -S www-data && \
+    getent passwd www-data || adduser -S -G www-data www-data
+
+RUN mkdir -p /run/php /var/www/html /usr/src/wordpress
+
+RUN curl -o wordpress.tar.gz -fL "https://wordpress.org/latest.tar.gz" && \
+    tar -xzf wordpress.tar.gz -C /usr/src/wordpress --strip-components=1 && \
+    rm wordpress.tar.gz
 
 COPY ./tools/script.sh /tools/script.sh
 
 RUN chmod +x /tools/script.sh && /tools/script.sh
+
+RUN cp -R /usr/src/wordpress/* /var/www/html/
+
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
 
 EXPOSE 9000
 
