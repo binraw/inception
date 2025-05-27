@@ -10,6 +10,19 @@
 # ensuite je dois lancer php-fpm et nginx 
 # peut etre configurer php-fpm
 
+# mettre le -e sur sed
 
+sed -e
 
-echo "listen = 0.0.0.0:9000" >> /etc/php83/php-fpm.d/www.conf 
+if [ ! -f /var/www/html/wp-config.php ]; then
+    echo "build wp-config.php..."
+    cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+    sed -i "s/database_name_here/${WORDPRESS_DB_NAME}/" /var/www/html/wp-config.php
+    sed -i "s/username_here/${WORDPRESS_DB_USER}/" /var/www/html/wp-config.php
+    sed -i "s/password_here/${WORDPRESS_DB_PASSWORD}/" /var/www/html/wp-config.php
+    sed -i "s/localhost/${WORDPRESS_DB_HOST}/" /var/www/html/wp-config.php
+else 
+    echo "wp-config.php already exists"
+fi
+
+exec php-fpm83 --nodaemonize -F

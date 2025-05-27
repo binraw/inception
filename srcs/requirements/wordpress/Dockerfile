@@ -31,11 +31,13 @@ RUN curl -o wordpress.tar.gz -fL "https://wordpress.org/latest.tar.gz" && \
     tar -xzf wordpress.tar.gz -C /usr/src/wordpress --strip-components=1 && \
     rm wordpress.tar.gz
 
+RUN cp -R /usr/src/wordpress/* /var/www/html/
+
 COPY ./tools/script.sh /tools/script.sh
 
-RUN chmod +x /tools/script.sh && /tools/script.sh
+RUN chmod +x /tools/script.sh
 
-RUN cp -R /usr/src/wordpress/* /var/www/html/
+ENTRYPOINT ["/tools/script.sh"]
 
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
