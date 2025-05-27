@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Attente que le répertoire de données soit prêt
+until [ -d /var/lib/mysql/mysql ]; do
+    echo "Waiting for MariaDB data directory..."
+    sleep 2
+done
+
+# Démarrage de MariaDB
+exec "$@"
+
 # dans son initialisation je vais devoir :
 # attendre que mariadb soit comletement demarre 
 

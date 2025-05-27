@@ -1,4 +1,4 @@
-FROM alpine:3.21.3
+FROM alpine:3.19
 
 RUN apk update && apk add --no-cache tini nginx bash openssl curl
 
@@ -12,6 +12,8 @@ COPY ./tools/script.sh /tools/script.sh
 
 RUN chmod +x /tools/script.sh && /tools/script.sh
 
+# Création du répertoire pour les certificats
+RUN mkdir -p /etc/nginx/tools
 
 EXPOSE 443
 

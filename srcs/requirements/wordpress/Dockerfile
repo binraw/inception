@@ -1,16 +1,15 @@
-FROM alpine:3.21.3
+FROM alpine:3.19
 
 RUN apk update
-# RUN apk  add  php8
 
-RUN apk  add --no-cache \
-    php-fpm \
-    php-mysqli \
-    php-gd \
-    php-zip \
-    php-json \
-    php-pdo \
-    php-pdo_mysql \
+RUN apk add --no-cache \
+    php83-fpm \
+    php83-mysqli \
+    php83-gd \
+    php83-zip \
+    php83-json \
+    php83-pdo \
+    php83-pdo_mysql \
     libjpeg-turbo-dev \
     libpng-dev \
     freetype-dev \
@@ -20,7 +19,6 @@ RUN apk  add --no-cache \
     bash \
     curl \
     shadow
-
 
 RUN getent group www-data || addgroup -S www-data && \
     getent passwd www-data || adduser -S -G www-data www-data
@@ -42,7 +40,10 @@ ENTRYPOINT ["/tools/script.sh"]
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
 
+# Configuration PHP-FPM
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php83/php-fpm.d/www.conf && \
+    sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
+
 EXPOSE 9000
 
-# mode non daemon
 CMD ["php-fpm83", "--nodaemonize", "-F"]

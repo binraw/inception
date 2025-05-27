@@ -1,0 +1,7 @@
+-- Création de la base de données WordPress
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+
+-- Création de l'utilisateur WordPress avec les permissions
+CREATE USER IF NOT EXISTS '${WORDPRESS_DB_USER}'@'%' IDENTIFIED BY '${WORDPRESS_DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${WORDPRESS_DB_USER}'@'%';
+FLUSH PRIVILEGES; 

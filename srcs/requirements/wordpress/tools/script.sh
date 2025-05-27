@@ -1,28 +1,29 @@
 #!/bin/bash
 
-# je dis config le fichier wp-config.php 
-# renommer wp-config-sample.php
-#je dois modifier le wp-config.php pour definir mes parametres de ma base de donnee
-# je vais utiliser sed pour modifier ca
-#une fois que wp-config.php est configurer je peux installer wordpress avec
-#wp-cli
-#puis je creer des utilisateurs et je dois installer des plugins
-# ensuite je dois lancer php-fpm et nginx 
-# peut etre configurer php-fpm
+# Attente de la base de données
+until mysql -h${WORDPRESS_DB_HOST} -u${WORDPRESS_DB_USER} -p${WORDPRESS_DB_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; do
+    echo "Waiting for MariaDB..."
+    sleep 2
+done
 
-# mettre le -e sur sed
-
-sed -e
-
+# Configuration de wp-config.php si nécessaire
 if [ ! -f /var/www/html/wp-config.php ]; then
-    echo "build wp-config.php..."
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-    sed -i "s/database_name_here/${WORDPRESS_DB_NAME}/" /var/www/html/wp-config.php
-    sed -i "s/username_here/${WORDPRESS_DB_USER}/" /var/www/html/wp-config.php
-    sed -i "s/password_here/${WORDPRESS_DB_PASSWORD}/" /var/www/html/wp-config.php
-    sed -i "s/localhost/${WORDPRESS_DB_HOST}/" /var/www/html/wp-config.php
-else 
-    echo "wp-config.php already exists"
+    
+    # Mise à jour des informations de base de données
+    sed -i "s/database_name_here/${WORDPRESS_DB_NAME}/g" /var/www/html/wp-config.php
+    sed -i "s/username_here/${WORDPRESS_DB_USER}/g" /var/www/html/wp-config.php
+    sed -i "s/password_here/${WORDPRESS_DB_PASSWORD}/g" /var/www/html/wp-config.php
+    sed -i "s/localhost/${WORDPRESS_DB_HOST}/g" /var/www/html/wp-config.php
+
+    # Génération des clés de sécurité
+    SALT=$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)
+    sed -i "/#@-/,/#@+/c\\$SALT" /var/www/html/wp-config.php
 fi
 
-exec php-fpm83 --nodaemonize -F
+# Configuration des permissions
+chown -R www-data:www-data /var/www/html
+chmod -R 755 /var/www/html
+
+# Démarrage de PHP-FPM
+exec "$@"
