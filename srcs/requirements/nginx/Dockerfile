@@ -2,18 +2,21 @@ FROM alpine:3.19
 
 RUN apk update && apk add --no-cache tini nginx bash openssl curl
 
-RUN rm /etc/nginx/nginx.conf
+
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
-COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+# COPY ./conf/nginx.conf  /etc/nginx/nginx.conf
 
-COPY ./tools/script.sh /tools/script.sh
+COPY ./conf/default.conf /etc/nginx/default.conf
 
-RUN chmod +x /tools/script.sh && /tools/script.sh
+RUN mkdir -p /etc/nginx/tools
+
+COPY ./tools/script.sh /etc/nginx/tools/script.sh
+
+RUN chmod +x /etc/nginx/tools/script.sh && /etc/nginx/tools/script.sh
 
 # Création du répertoire pour les certificats
-RUN mkdir -p /etc/nginx/tools
 
 EXPOSE 443
 

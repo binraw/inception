@@ -1,1 +1,5 @@
 srcs/.env
+srcs/*.dockerignore
+test.txt
+srcs/requirements/nginx/tools/*.key
+srcs/requirements/nginx/tools/*.crt

@@ -18,7 +18,8 @@ RUN apk add --no-cache \
     ghostscript \
     bash \
     curl \
-    shadow
+    shadow \
+    mysql-client
 
 RUN getent group www-data || addgroup -S www-data && \
     getent passwd www-data || adduser -S -G www-data www-data
@@ -40,7 +41,7 @@ ENTRYPOINT ["/tools/script.sh"]
 RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
 
-# Configuration PHP-FPM
+# Configuration PHP-FPM (possible a mettre dans le sh)
 RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php83/php-fpm.d/www.conf && \
     sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
 
