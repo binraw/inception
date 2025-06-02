@@ -1,3 +1,4 @@
+version: '3'
 services:
   nginx:
     build:
@@ -8,7 +9,7 @@ services:
     volumes:
      - ./requirements/nginx/conf/default.conf:/etc/nginx/default.conf
      - ./requirements/nginx/tools:/etc/nginx/tools
-     - wordpress_data:/var/www/html
+     - wordpress_data:/var/www/html:ro
     networks:
       - my_network
     restart: on-failure

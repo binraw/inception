@@ -1,26 +1,24 @@
 FROM alpine:3.19
 
-RUN apk update && apk add --no-cache mariadb mariadb-client
+RUN apk update && apk add --no-cache mariadb mariadb-client  bash su-exec
 
 
-RUN addgroup -S mydatabase && adduser -S rob -G mydatabase
+
+RUN mkdir -p /run/mysqld /var/lib/mysql /etc/mariadb/tools /etc/mariadb/tools && \
+    chown -R mysql:mysql /run/mysqld /var/lib/mysql /etc/mariadb
 
 
-RUN mkdir -p /run/mysqld && \
-    chown -R rob:mydatabase /run/mysqld && \
-    mkdir -p /var/lib/mysql && \
-    chown -R rob:mydatabase /var/lib/mysql
+COPY ./conf/my.cnf /etc/my.cnf.d/mariadb-server.cnf
 
+COPY ./tools/script.sh /etc/mariadb/tools/script.sh
+COPY ./tools/entrypoint.sh /etc/mariadb/tools/entrypoint.sh
 
-RUN mysql_install_db --user=rob --datadir=/var/lib/mysql
+RUN chmod +x /etc/mariadb/tools/script.sh  /etc/mariadb/tools/entrypoint.sh 
 
-
-COPY ./init.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 3306
 
 VOLUME /var/lib/mysql
 
-USER rob
 
-CMD ["mariadbd"]
+CMD ["/etc/mariadb/tools/entrypoint.sh"]

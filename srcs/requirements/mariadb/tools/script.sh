@@ -17,16 +17,16 @@ mysqld &
 # done
 
 
-mysql -h "localhost" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
+mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
 
 # Création de l'utilisateur si il n'existe pas
-mysql -h "localhost" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
+mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
 
 # Attribution des privilèges à l'utilisateur
-mysql -h "localhost" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';"
+mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';"
 
 # Appliquer les changements de privilèges
-mysql -h "localhost" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
+mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
 
 # Attendre que mysqld reste au premier plan
 wait
