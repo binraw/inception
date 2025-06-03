@@ -42,8 +42,8 @@ RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html
 
 # Configuration PHP-FPM (possible a mettre dans le sh)
-RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php83/php-fpm.d/www.conf && \
-    sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
+# RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php83/php-fpm.d/www.conf && \
+#     sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
 
 EXPOSE 9000
 

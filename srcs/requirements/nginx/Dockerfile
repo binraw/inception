@@ -2,15 +2,13 @@ FROM alpine:3.19
 
 RUN apk update && apk add --no-cache tini nginx bash openssl curl
 
-
-
 ENTRYPOINT ["/sbin/tini", "--"]
 
 
+RUN mkdir -p /etc/nginx/tools
 
 COPY ./conf/default.conf /etc/nginx/default.conf
 
-RUN mkdir -p /etc/nginx/tools
 
 COPY ./tools/script.sh /etc/nginx/tools/script.sh
 

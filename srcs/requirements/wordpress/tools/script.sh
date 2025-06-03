@@ -8,6 +8,7 @@
 #     sleep 2
 # fi
 
+echo "Debut script wordpress"
 
 if [ ! -f /var/www/html/wp-config.php ]; then
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
@@ -28,4 +29,6 @@ fi
 # chmod -R 755 /var/www/html
 
 # Démarrage de PHP-FPM
+echo "Script wordpress OK"
+
 exec "$@"

@@ -1,32 +1,59 @@
 #!/bin/bash
 
-
+echo $MYSQL_ROOT_PASSWORD
 until [ -d /var/lib/mysql/mysql ]; do
     echo "Waiting for MariaDB data directory..."
     sleep 2
 done
 
-echo "Suite du script mariadb"
 
-mysqld &
+until mysql -S /run/mysqld/mysqld.sock -u root -p"$MYSQL_ROOT_PASSWORD" -e "SELECT 1;" >/dev/null 2>&1; do
+    echo "Waiting mariadbin script.sh..."
+    sleep 2
+done
 
-# Attente que MariaDB soit prêt à accepter les connexions
-# until mysql -h "localhost" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "SHOW DATABASES;" >/dev/null 2>&1; do
-#     echo "Waiting for MariaDB to be ready..."
-#     sleep 3
+mysql -S /run/mysqld/mysqld.sock -u root -p"$MYSQL_ROOT_PASSWORD" <<-EOSQL
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+CREATE USER IF NOT EXISTS 'root'@'127.0.0.1' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EOSQL
+
+
+mysql -S /run/mysqld/mysqld.sock -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
+
+
+mysql -S /run/mysqld/mysqld.sock -u "root" -p"$MYSQL_ROOT_PASSWORD" <<-EOSQL
+CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+GRANT ALL PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';
+FLUSH PRIVILEGES;
+EOSQL
+
+
+wait
+
+
+# until mysql -S /run/mysqld/mysqld.sock -u root -e "SELECT 1;" >/dev/null 2>&1; do
+#     echo "Waiting mariadbin script.sh..."
+#     sleep 2
 # done
 
+# mysql -S /run/mysqld/mysqld.sock -u root  <<-EOSQL
+# ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+# CREATE USER IF NOT EXISTS 'root'@'127.0.0.1' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+# GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
+# FLUSH PRIVILEGES;
+# EOSQL
 
-mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
 
-# Création de l'utilisateur si il n'existe pas
-mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';"
+# mysql -S /run/mysqld/mysqld.sock -u "root"  -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
 
-# Attribution des privilèges à l'utilisateur
-mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "GRANT ALL PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';"
 
-# Appliquer les changements de privilèges
-mysql -h "rob" -u "root" -p"$MYSQL_ROOT_PASSWORD" -e "FLUSH PRIVILEGES;"
+# mysql -S /run/mysqld/mysqld.sock -u "root" <<-EOSQL
+# CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+# GRANT ALL PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';
+# FLUSH PRIVILEGES;
+# EOSQL
 
-# Attendre que mysqld reste au premier plan
-wait
+
+# wait
