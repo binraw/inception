@@ -10,6 +10,8 @@ RUN apk add --no-cache \
     php83-json \
     php83-pdo \
     php83-pdo_mysql \
+    php83-cli \
+    php83-curl \
     libjpeg-turbo-dev \
     libpng-dev \
     freetype-dev \
@@ -19,7 +21,13 @@ RUN apk add --no-cache \
     bash \
     curl \
     shadow \
-    mysql-client
+    mysql-client \
+    netcat-openbsd
+
+# Installation de WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp
 
 RUN getent group www-data || addgroup -S www-data && \
     getent passwd www-data || adduser -S -G www-data www-data

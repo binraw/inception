@@ -1,34 +1,106 @@
 #!/bin/bash
 
+set -e
 
-# if mysql -h${WORDPRESS_DB_HOST} -u${WORDPRESS_DB_USER} -p${WORDPRESS_DB_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; then
-#     echo "Mariadb is up !"
-# else
-#     echo "Waiting for MariaDB..."
-#     sleep 2
-# fi
+WP_PATH="/var/www/html"
 
-echo "Debut script wordpress"
-
-if [ ! -f /var/www/html/wp-config.php ]; then
-    cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-    
-  
-    sed -i "s/database_name_here/${WORDPRESS_DB_NAME}/g" /var/www/html/wp-config.php
-    sed -i "s/username_here/${WORDPRESS_DB_USER}/g" /var/www/html/wp-config.php
-    sed -i "s/password_here/${WORDPRESS_DB_PASSWORD}/g" /var/www/html/wp-config.php
-    sed -i "s/localhost/${WORDPRESS_DB_HOST}/g" /var/www/html/wp-config.php
-
-#clefs secu
-    # SALT=$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)
-    # sed -i "/#@-/,/#@+/c\\$SALT" /var/www/html/wp-config.php
+if [ -f "${WP_PATH}/wp-config.php" ]; then
+    echo "wp-config.php déjà présent, skip."
+    exit 0
 fi
 
-#je le fais deja dans le dockerfile
-# chown -R www-data:www-data /var/www/html
-# chmod -R 755 /var/www/html
+echo "Création du fichier wp-config.php..."
 
-# Démarrage de PHP-FPM
-echo "Script wordpress OK"
+if [ -z "$WORDPRESS_DB_NAME" ] && [ -z "$MYSQL_DATABASE" ]; then
+    echo "ERREUR: La variable WORDPRESS_DB_NAME ou MYSQL_DATABASE doit être définie"
+    exit 1
+fi
 
-exec "$@"
+if [ -z "$WORDPRESS_DB_USER" ] && [ -z "$MYSQL_USER" ]; then
+    echo "ERREUR: La variable WORDPRESS_DB_USER ou MYSQL_USER doit être définie"
+    exit 1
+fi
+
+DB_NAME=${WORDPRESS_DB_NAME}
+DB_USER=${WORDPRESS_DB_USER}
+DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+DB_HOST=${WORDPRESS_DB_HOST}
+
+echo "Configuration avec:"
+echo "- Base de données: $DB_NAME"
+echo "- Utilisateur: $DB_USER"
+echo "- Hôte: $DB_HOST"
+
+# Génération des clés de sécurité
+AUTH_KEY=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+SECURE_AUTH_KEY=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+LOGGED_IN_KEY=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+NONCE_KEY=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+AUTH_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+SECURE_AUTH_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+LOGGED_IN_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+NONCE_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
+
+cat > "${WP_PATH}/wp-config.php" <<EOF
+<?php
+define('DB_NAME', '$DB_NAME');
+define('DB_USER', '$DB_USER');
+define('DB_PASSWORD', '$DB_PASSWORD');
+define('DB_HOST', '$DB_HOST');
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+
+define('AUTH_KEY',         '$AUTH_KEY');
+define('SECURE_AUTH_KEY',  '$SECURE_AUTH_KEY');
+define('LOGGED_IN_KEY',    '$LOGGED_IN_KEY');
+define('NONCE_KEY',        '$NONCE_KEY');
+define('AUTH_SALT',        '$AUTH_SALT');
+define('SECURE_AUTH_SALT', '$SECURE_AUTH_SALT');
+define('LOGGED_IN_SALT',   '$LOGGED_IN_SALT');
+define('NONCE_SALT',       '$NONCE_SALT');
+
+\$table_prefix = 'wp_';
+
+define('WP_DEBUG', true);
+
+if ( ! defined( 'ABSPATH' ) ) {
+    define( 'ABSPATH', __DIR__ . '/' );
+}
+
+require_once ABSPATH . 'wp-settings.php';
+EOF
+
+echo "wp-config.php créé avec succès."
+
+# Installation de WordPress si nécessaire
+if [ ! -f "${WP_PATH}/wp-load.php" ]; then
+    echo "Téléchargement de WordPress..."
+    wp core download --path="${WP_PATH}" --allow-root
+fi
+
+# Installation de WordPress si pas déjà fait
+if ! wp core is-installed --path="${WP_PATH}" --allow-root; then
+    echo "Installation de WordPress..."
+    wp core install \
+        --path="${WP_PATH}" \
+        --allow-root \
+        --url="${DOMAIN_NAME}" \
+        --title="${WP_TITLE}" \
+        --admin_user="${WP_ADMIN_USR}" \
+        --admin_password="${WP_ADMIN_PWD}" \
+        --admin_email="${WP_ADMIN_EMAIL}" \
+        --skip-email
+
+    echo "Création d'un utilisateur supplémentaire..."
+    wp user create "${WP_USR}" "${WP_EMAIL}" \
+        --path="${WP_PATH}" \
+        --role=author \
+        --user_pass="${WP_PWD}" \
+        --allow-root
+fi
+
+# Mise à jour des plugins et thèmes
+wp plugin update --all --path="${WP_PATH}" --allow-root
+wp theme update --all --path="${WP_PATH}" --allow-root
+
+echo "Configuration WordPress terminée avec succès."

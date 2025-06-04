@@ -1,16 +1,17 @@
 #!/bin/bash
 
+# Créer le répertoire pour les certificats
+mkdir -p /etc/nginx/ssl
+
 # Génération des certificats SSL auto-signés si ils n'existent pas
-if [ ! -f certificat.crt ] || [ ! -f key_certificat.key ]; then
+if [ ! -f /etc/nginx/ssl/certificat.crt ] || [ ! -f /etc/nginx/ssl/key_certificat.key ]; then
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout key_certificat.key \
-        -out certificat.crt \
-        -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=rtruvelo.42.fr"
+        -keyout /etc/nginx/ssl/key_certificat.key \
+        -out /etc/nginx/ssl/certificat.crt \
+        -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=localhost"
 fi
 
-
-chmod 644 certificat.crt
-chmod 600 key_certificat.key
-
+chmod 644 /etc/nginx/ssl/certificat.crt
+chmod 600 /etc/nginx/ssl/key_certificat.key
 
 exec "$@"
