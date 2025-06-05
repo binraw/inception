@@ -10,23 +10,35 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
     # Démarrage temporaire de MariaDB pour l'initialisation
-    mariadbd --user=mysql --bootstrap << EOF
+mysqld_safe --datadir=/var/lib/mysql &
+pid="$!"
+
+sleep 3
+
+    mysql << EOF
 -- Suppression des utilisateurs par défaut
 DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 
--- Création de l'utilisateur root avec tous les privilèges
-CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
 
--- Création de la base de données
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 
--- Application des changements
+CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+
+
+
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
+
+
 FLUSH PRIVILEGES;
 EOF
+
+echo "Arret temporaire..."
+mysqladmin shutdown
+wait "$pid"
 fi
 
 echo "Démarrage de MariaDB..."
 # Démarrage de MariaDB en mode normal
-mariadbd --user=mysql --datadir=/var/lib/mysql
+mariadbd --user=mysql --datadir=/var/lib/mysql --bind-address=0.0.0.0

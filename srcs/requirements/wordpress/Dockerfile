@@ -12,6 +12,9 @@ RUN apk add --no-cache \
     php83-pdo_mysql \
     php83-cli \
     php83-curl \
+    php83-phar \
+    php83-iconv \
+    php83-mbstring \
     libjpeg-turbo-dev \
     libpng-dev \
     freetype-dev \
@@ -24,6 +27,9 @@ RUN apk add --no-cache \
     mysql-client \
     netcat-openbsd
 
+
+#ici j'ajoute un lien symbolique pour que le script fonctionne (trouve php) 
+RUN ln -s /usr/bin/php83 /usr/bin/php
 # Installation de WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \

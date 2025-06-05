@@ -4,10 +4,10 @@ set -e
 
 WP_PATH="/var/www/html"
 
-if [ -f "${WP_PATH}/wp-config.php" ]; then
-    echo "wp-config.php déjà présent, skip."
-    exit 0
-fi
+# if [ -f "${WP_PATH}/wp-config.php" ]; then
+#     echo "wp-config.php déjà présent, skip."
+#     exit 0
+# fi
 
 echo "Création du fichier wp-config.php..."
 
@@ -41,12 +41,13 @@ SECURE_AUTH_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*(
 LOGGED_IN_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
 NONCE_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|:<>?=' | head -c 64)
 
+#je mets en dur pour voir 
 cat > "${WP_PATH}/wp-config.php" <<EOF
 <?php
-define('DB_NAME', '$DB_NAME');
-define('DB_USER', '$DB_USER');
-define('DB_PASSWORD', '$DB_PASSWORD');
-define('DB_HOST', '$DB_HOST');
+define('DB_NAME', 'mariadb');
+define('DB_USER', 'rob');
+define('DB_PASSWORD', 'Vm4242sql');
+define('DB_HOST', 'mariadb');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
@@ -72,6 +73,17 @@ EOF
 
 echo "wp-config.php créé avec succès."
 
+echo "Attente de mariaDB $DB_HOST..."
+until nc -z -v -w30 "$DB_HOST" 3306
+do 
+    echo "Attente..."
+    sleep 2
+done 
+echo "Mariadb pret !"
+
+
+export HTTP_HOST="rtruvelo.42.fr"
+
 # Installation de WordPress si nécessaire
 if [ ! -f "${WP_PATH}/wp-load.php" ]; then
     echo "Téléchargement de WordPress..."
@@ -84,19 +96,19 @@ if ! wp core is-installed --path="${WP_PATH}" --allow-root; then
     wp core install \
         --path="${WP_PATH}" \
         --allow-root \
-        --url="${DOMAIN_NAME}" \
-        --title="${WP_TITLE}" \
-        --admin_user="${WP_ADMIN_USR}" \
-        --admin_password="${WP_ADMIN_PWD}" \
-        --admin_email="${WP_ADMIN_EMAIL}" \
+        --url="rtruvelo.42.fr" \
+        --title="Test Site" \
+        --admin_user="rob" \
+        --admin_password="${WORDPRESS_DB_PASSWORD}" \
+        --admin_email="truv@gmail.com" \
         --skip-email
 
-    echo "Création d'un utilisateur supplémentaire..."
-    wp user create "${WP_USR}" "${WP_EMAIL}" \
-        --path="${WP_PATH}" \
-        --role=author \
-        --user_pass="${WP_PWD}" \
-        --allow-root
+    # echo "Création d'un utilisateur supplémentaire..."
+    # wp user create "${WP_USR}" "${WP_EMAIL}" \
+    #     --path="${WP_PATH}" \
+    #     --role=author \
+    #     --user_pass="${WP_PWD}" \
+    #     --allow-root
 fi
 
 # Mise à jour des plugins et thèmes
@@ -104,3 +116,5 @@ wp plugin update --all --path="${WP_PATH}" --allow-root
 wp theme update --all --path="${WP_PATH}" --allow-root
 
 echo "Configuration WordPress terminée avec succès."
+
+exec php-fpm83 --nodaemonize -F

@@ -26,12 +26,13 @@ services:
     volumes:
       - wordpress_data:/var/www/html
     environment:
-      WORDPRESS_DB_HOST: mariadb
-      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
     networks:
       - my_network
+    
 
   mariadb:
     build:
