@@ -96,7 +96,7 @@ if ! wp core is-installed --path="${WP_PATH}" --allow-root; then
     wp core install \
         --path="${WP_PATH}" \
         --allow-root \
-        --url="rtruvelo.42.fr" \
+        --url="https://rtruvelo.42.fr" \
         --title="Test Site" \
         --admin_user="rob" \
         --admin_password="${WORDPRESS_DB_PASSWORD}" \

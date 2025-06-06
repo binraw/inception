@@ -44,20 +44,25 @@ RUN curl -o wordpress.tar.gz -fL "https://wordpress.org/latest.tar.gz" && \
     tar -xzf wordpress.tar.gz -C /usr/src/wordpress --strip-components=1 && \
     rm wordpress.tar.gz
 
-RUN cp -R /usr/src/wordpress/* /var/www/html/
+RUN cp -R /usr/src/wordpress/* /var/www/html/ && \
+    chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html
 
 COPY ./tools/script.sh /tools/script.sh
 
 RUN chmod +x /tools/script.sh
 
-ENTRYPOINT ["/tools/script.sh"]
 
-RUN chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html
+RUN chown -R www-data:www-data /usr/src/wordpress
+
+RUN  chown -R www-data:www-data /run/php
+
 
 # Configuration PHP-FPM (possible a mettre dans le sh)
-# RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php83/php-fpm.d/www.conf && \
-#     sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
+RUN sed -i 's/listen = .*/listen = 0.0.0.0:9000/g' /etc/php83/php-fpm.d/www.conf && \
+sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
+
+ENTRYPOINT ["/tools/script.sh"]
 
 EXPOSE 9000
 

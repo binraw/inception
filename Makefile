@@ -2,6 +2,7 @@ build:
 	docker-compose -f srcs/docker-compose.yml build
 
 up: 
+	mkdir -p /home/rtruvelo/data/db_data /home/rtruvelo/data/wordpress_data
 	docker-compose -f srcs/docker-compose.yml up
 
 start: 

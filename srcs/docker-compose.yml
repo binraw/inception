@@ -7,9 +7,7 @@ services:
     ports:
       - "443:443"
     volumes:
-     - ./requirements/nginx/conf/default.conf:/etc/nginx/default.conf
-     - ./requirements/nginx/tools:/etc/nginx/tools
-     - wordpress_data:/var/www/html:ro
+     - wordpress_data:/var/www/html
     networks:
       - my_network
     restart: on-failure
@@ -48,7 +46,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-      - ./requirements/mariadb/conf/my.conf:/etc/mysql/my.cnf:ro
+      - ./requirements/mariadb/conf/my.conf:/etc/mysql/my.cnf
     networks:
       - my_network
 
@@ -58,4 +56,14 @@ networks:
 
 volumes:
   db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/rtruvelo/data/db_data
   wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/rtruvelo/data/wordpress_data
