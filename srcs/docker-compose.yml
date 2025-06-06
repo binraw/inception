@@ -3,6 +3,7 @@ services:
   nginx:
     build:
       context: ./requirements/nginx
+    image: rtruvelo/nginx:v1
     container_name: nginx
     ports:
       - "443:443"
@@ -15,6 +16,7 @@ services:
   wordpress:
     build:
       context: ./requirements/wordpress
+    image: rtruvelo/wordpress:v1
     container_name: wordpress
     depends_on:
       - mariadb
@@ -35,6 +37,7 @@ services:
   mariadb:
     build:
       context: ./requirements/mariadb
+    image: rtruvelo/mariadb:v1
     container_name: mariadb
     ports:
       - "3306:3306"

@@ -45,8 +45,8 @@ NONCE_SALT=$(head -c 64 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9!@#$%^&*()_+{}|
 cat > "${WP_PATH}/wp-config.php" <<EOF
 <?php
 define('DB_NAME', 'mariadb');
-define('DB_USER', 'rob');
-define('DB_PASSWORD', 'Vm4242sql');
+define('DB_USER', '${WORDPRESS_DB_USER}');
+define('DB_PASSWORD', '${WORDPRESS_DB_PASSWORD}');
 define('DB_HOST', 'mariadb');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
@@ -98,7 +98,7 @@ if ! wp core is-installed --path="${WP_PATH}" --allow-root; then
         --allow-root \
         --url="https://rtruvelo.42.fr" \
         --title="Test Site" \
-        --admin_user="rob" \
+        --admin_user="${MYSQL_USER}" \
         --admin_password="${WORDPRESS_DB_PASSWORD}" \
         --admin_email="truv@gmail.com" \
         --skip-email

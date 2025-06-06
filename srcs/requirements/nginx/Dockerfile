@@ -17,12 +17,6 @@ COPY ./tools/script.sh /etc/nginx/tools/script.sh
 
 RUN chmod +x /etc/nginx/tools/script.sh
 
-# RUN chmod 755 /var/www/html
-
-# RUN chown -R www-data:www-data /var/www/html
-
-
-
 EXPOSE 443
 
 ENTRYPOINT ["/sbin/tini", "--", "/etc/nginx/tools/script.sh"]
