@@ -4,11 +4,6 @@ set -e
 
 WP_PATH="/var/www/html"
 
-# if [ -f "${WP_PATH}/wp-config.php" ]; then
-#     echo "wp-config.php déjà présent, skip."
-#     exit 0
-# fi
-
 echo "Création du fichier wp-config.php..."
 
 if [ -z "$WORDPRESS_DB_NAME" ] && [ -z "$MYSQL_DATABASE" ]; then
@@ -102,13 +97,6 @@ if ! wp core is-installed --path="${WP_PATH}" --allow-root; then
         --admin_password="${WORDPRESS_DB_PASSWORD}" \
         --admin_email="truv@gmail.com" \
         --skip-email
-
-    # echo "Création d'un utilisateur supplémentaire..."
-    # wp user create "${WP_USR}" "${WP_EMAIL}" \
-    #     --path="${WP_PATH}" \
-    #     --role=author \
-    #     --user_pass="${WP_PWD}" \
-    #     --allow-root
 fi
 
 # Mise à jour des plugins et thèmes
@@ -116,5 +104,5 @@ wp plugin update --all --path="${WP_PATH}" --allow-root
 wp theme update --all --path="${WP_PATH}" --allow-root
 
 echo "Configuration WordPress terminée avec succès."
-
+# test juste avec $@
 exec php-fpm83 --nodaemonize -F

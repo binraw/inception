@@ -58,7 +58,7 @@ RUN chown -R www-data:www-data /usr/src/wordpress
 RUN  chown -R www-data:www-data /run/php
 
 
-# Configuration PHP-FPM (possible a mettre dans le sh)
+# Configuration PHP-FPM
 RUN sed -i 's/listen = .*/listen = 0.0.0.0:9000/g' /etc/php83/php-fpm.d/www.conf && \
 sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
 
