@@ -1,0 +1,7 @@
+suppression : docker image rm $(docker images ls -q)
+                docker volume rm $(docker volume ls -q)
+
+SHOW DATABASES;
+USE mariadb;
+SHOW TABLES:
+SELECT * FROM wp_user;

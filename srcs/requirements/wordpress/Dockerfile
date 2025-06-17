@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3.21
 
 RUN apk update
 
@@ -28,9 +28,8 @@ RUN apk add --no-cache \
     netcat-openbsd
 
 
-#ici j'ajoute un lien symbolique pour que le script fonctionne (trouve php) 
-RUN ln -s /usr/bin/php83 /usr/bin/php
-# Installation de WP-CLI
+
+# Installation de WP-CLI 
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
@@ -58,7 +57,7 @@ RUN chown -R www-data:www-data /usr/src/wordpress
 RUN  chown -R www-data:www-data /run/php
 
 
-# Configuration PHP-FPM
+# Configuration PHP-FPM (gestion des cgi)
 RUN sed -i 's/listen = .*/listen = 0.0.0.0:9000/g' /etc/php83/php-fpm.d/www.conf && \
 sed -i 's/;clear_env = no/clear_env = no/g' /etc/php83/php-fpm.d/www.conf
 
